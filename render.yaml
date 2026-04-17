@@ -29,6 +29,8 @@ services:
     dockerfilePath: ./frontend/Dockerfile
     region: frankfurt
     plan: free
+    dockerBuildArgs:
+      VITE_API_URL: https://schedulesys-backend.onrender.com/api
     envVars:
       - key: PORT
         value: 80
