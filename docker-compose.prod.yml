@@ -1,0 +1,41 @@
+version: '3.8'
+
+services:
+  db:
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_USER: ${DB_USER:-postgres}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-raim100100}
+      POSTGRES_DB: ${DB_NAME:-schedulesys}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    restart: always
+
+  backend:
+    build: 
+      context: ./backend
+      dockerfile: Dockerfile
+    depends_on:
+      - db
+    environment:
+      - DATABASE_URL=postgresql://${DB_USER:-postgres}:${DB_PASSWORD:-raim100100}@db:5432/${DB_NAME:-schedulesys}
+      - JWT_SECRET=${JWT_SECRET:-your-secret-key-change-it}
+      - ADMIN_PASSWORD=${ADMIN_PASSWORD:-admin123}
+    # В продакшене не монтируем код, он уже внутри образа
+    restart: always
+
+  frontend:
+    build: 
+      context: ./frontend
+      dockerfile: Dockerfile
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+    # В продакшене не монтируем код, он уже внутри образа
+    restart: always
+
+volumes:
+  postgres_data:

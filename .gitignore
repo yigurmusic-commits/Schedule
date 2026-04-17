@@ -1,0 +1,36 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+venv/
+.env
+
+# Node.js
+node_modules/
+dist/
+.eslintcache
+
+# Docker
+docker-compose.override.yml
+
+# IDEs
+.vscode/
+.idea/
+
+# Large files
+*.exe
+*.zip
+*.sql
+*.txt
+*.db
+*.bak
+ Montserrat.zip
+ cloudflared.exe
+ college_schedule_production_schema*.sql
+ full_backup.txt
+ full_database_context.txt
+ pg_out.txt
+ psql_output*.txt
+ schedule.db*
+ База данных.zip
+ омни (2).zip

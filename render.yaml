@@ -1,0 +1,34 @@
+services:
+  # Бэкенд на Python (FastAPI)
+  - type: web
+    name: schedulesys-backend
+    env: docker
+    dockerContext: backend
+    region: frankfurt # Ближе к СНГ
+    plan: free # Можно сменить на paid в будущем
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: schedulesys-db
+          property: connectionString
+      - key: JWT_SECRET
+        generateValue: true
+      - key: ADMIN_PASSWORD
+        value: admin123 # Рекомендуется сменить после деплоя
+      - key: PORT
+        value: 10000
+
+  # Фронтенд на React (Vite)
+  - type: web
+    name: schedulesys-frontend
+    env: docker
+    dockerContext: frontend
+    region: frankfurt
+    plan: free
+    # Фронтенд проксирует запросы на бэкенд через Nginx (см. nginx.conf)
+    # В облаке мы можем просто указать полный URL бэкенда позже или использовать переменные.
+
+databases:
+  - name: schedulesys-db
+    databaseName: schedulesys
+    plan: free
