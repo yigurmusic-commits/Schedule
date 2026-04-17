@@ -123,10 +123,15 @@ def startup_event():
             db.commit()
             logger.info("✅ Создан дефолтный администратор (ИИН: 990101000001, пароль: %s)", admin_password)
         else:
-            logger.info("ℹ️  Администратор 990101000001 уже существует в БД.")
+            # Всегда обновляем хеш при запуске, чтобы гарантировать совместимость
+            # (актуально при смене библиотеки хеширования или пароля через .env)
+            existing.password_hash = get_password_hash(admin_password)
+            existing.role = UserRole.ADMIN
+            db.commit()
+            logger.info("✅ Хеш пароля администратора 990101000001 обновлён (пароль: %s)", admin_password)
     except Exception as exc:
         db.rollback()
-        logger.error("❌ Ошибка при создании администратора: %s", exc)
+        logger.error("❌ Ошибка при создании/обновлении администратора: %s", exc)
     finally:
         db.close()
 
