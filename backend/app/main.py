@@ -39,7 +39,7 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 # Создание таблиц (dev-режим; в production используем Alembic / SQL-патч)
-Base.metadata.create_all(bind=engine)
+# Base.metadata.create_all(bind=engine)
 
 app = FastAPI(
     title="scheduleSYS API",
@@ -75,12 +75,31 @@ app.include_router(settings.router)
 
 # ─── Startup ────────────────────────────────────────────────────────────────
 @app.on_event("startup")
-def seed_default_users():
+def startup_event():
     """
-    Создаёт дефолтного admin при первом запуске (только если его нет в БД).
-    Пароль читается из переменной окружения ADMIN_PASSWORD (default: admin123).
-    [FIX B-05] Заменён print() на logging.
+    Выполняется при запуске сервера. Ожидает готовности базы данных, создаёт таблицы
+    и дефолтного администратора.
     """
+    import time
+    from sqlalchemy.exc import OperationalError
+    
+    # 1. Ожидание готовности БД и создание таблиц
+    retries = 5
+    while retries > 0:
+        try:
+            logger.info("Подключение к базе данных и создание таблиц...")
+            Base.metadata.create_all(bind=engine)
+            logger.info("Таблицы успешно проверены/созданы.")
+            break
+        except OperationalError as e:
+            retries -= 1
+            logger.warning(f"База данных недоступна, ожидание... (осталось попыток: {retries}): {e}")
+            if retries == 0:
+                logger.error("Не удалось подключиться к базе данных.")
+                raise e
+            time.sleep(5)
+
+    # 2. Создание дефолтного пользователя
     from app.auth import get_password_hash
     from app.models.models import User, UserRole
 
