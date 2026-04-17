@@ -7,30 +7,42 @@ venv/
 
 # Node.js
 node_modules/
-dist/
 .eslintcache
 
-# Docker
+# Docker build artifacts
 docker-compose.override.yml
 
 # IDEs
 .vscode/
 .idea/
 
-# Large files
+# Binary and large files
 *.exe
 *.zip
-*.sql
-*.txt
 *.db
-*.bak
- Montserrat.zip
- cloudflared.exe
- college_schedule_production_schema*.sql
- full_backup.txt
- full_database_context.txt
- pg_out.txt
- psql_output*.txt
- schedule.db*
- База данных.zip
- омни (2).zip
+*.db.bak
+
+# Specific large text files to exclude
+full_database_context.txt
+full_backup.txt
+pg_out.txt
+psql_output*.txt
+notebooklm.rxt
+output_data.txt
+export.txt
+server.log
+
+# Specific large SQL files
+college_schedule_production_schema*.sql
+new_college_schedule_production_schema.sql
+patch_v1_seed_and_fixes.sql
+Обновленная\ главная\ бдшка.sql
+bd.sql
+
+# Data directories
+омни/
+омни\ (2).zip
+База\ данных.zip
+Montserrat.zip
+cloudflared.exe
+
