@@ -4,8 +4,8 @@ services:
     name: schedulesys-backend
     env: docker
     dockerContext: backend
-    region: frankfurt # Ближе к СНГ
-    plan: free # Можно сменить на paid в будущем
+    region: frankfurt
+    plan: free
     envVars:
       - key: DATABASE_URL
         fromDatabase:
@@ -14,21 +14,29 @@ services:
       - key: JWT_SECRET
         generateValue: true
       - key: ADMIN_PASSWORD
-        value: admin123 # Рекомендуется сменить после деплоя
+        value: admin123
       - key: PORT
         value: 10000
 
-  # Фронтенд на React (Vite)
+  # Фронтенд на React (Vite) + Nginx
   - type: web
     name: schedulesys-frontend
     env: docker
     dockerContext: frontend
     region: frankfurt
     plan: free
-    # Фронтенд проксирует запросы на бэкенд через Nginx (см. nginx.conf)
-    # В облаке мы можем просто указать полный URL бэкенда позже или использовать переменные.
+    envVars:
+      # Автоматически получает публичный URL бэкенд-сервиса
+      - key: BACKEND_URL
+        fromService:
+          name: schedulesys-backend
+          type: web
+          property: host
+      - key: PORT
+        value: 80
 
 databases:
   - name: schedulesys-db
     databaseName: schedulesys
     plan: free
+    region: frankfurt
