@@ -11,13 +11,15 @@ services:
       - key: DATABASE_URL
         fromDatabase:
           name: schedulesys-db
-          property: externalConnectionString
-      - key: JWT_SECRET
+          property: internalConnectionString
+      - key: SECRET_KEY
         generateValue: true
       - key: ADMIN_PASSWORD
         value: admin123
       - key: PORT
         value: 10000
+      - key: CORS_ORIGINS
+        value: https://schedulesys-frontend.onrender.com,http://localhost:5173,http://localhost:3000
 
   # Фронтенд на React (Vite) + Nginx
   - type: web
@@ -28,12 +30,6 @@ services:
     region: frankfurt
     plan: free
     envVars:
-      # Автоматически получает публичный URL бэкенд-сервиса
-      - key: BACKEND_URL
-        fromService:
-          name: schedulesys-backend
-          type: web
-          property: host
       - key: PORT
         value: 80
 

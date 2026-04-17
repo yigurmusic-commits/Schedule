@@ -112,7 +112,8 @@ def startup_event():
 
     db = next(get_db())
     try:
-        if not db.query(User).filter(User.username == "990101000001").first():
+        existing = db.query(User).filter(User.username == "990101000001").first()
+        if not existing:
             db.add(User(
                 username="990101000001",
                 password_hash=get_password_hash(admin_password),
@@ -120,10 +121,12 @@ def startup_event():
                 full_name="Администратор",
             ))
             db.commit()
-            logger.info("Создан дефолтный администратор (ИИН: 990101000001)")
+            logger.info("✅ Создан дефолтный администратор (ИИН: 990101000001, пароль: %s)", admin_password)
+        else:
+            logger.info("ℹ️  Администратор 990101000001 уже существует в БД.")
     except Exception as exc:
         db.rollback()
-        logger.error("Ошибка при создании администратора: %s", exc)
+        logger.error("❌ Ошибка при создании администратора: %s", exc)
     finally:
         db.close()
 
@@ -132,6 +135,37 @@ def startup_event():
 @app.get("/api/health", tags=["System"])
 def health_check():
     return {"status": "ok", "message": "scheduleSYS API работает"}
+
+
+@app.post("/api/admin-reset", tags=["System"])
+def admin_reset(key: str, db=Depends(get_db)):
+    """
+    Экстренное восстановление / пересоздание администратора.
+    Требует передать ?key=<ADMIN_PASSWORD> из переменной окружения.
+    """
+    from app.auth import get_password_hash
+    from app.models.models import User, UserRole
+
+    admin_password = os.getenv("ADMIN_PASSWORD", "admin123")
+    if key != admin_password:
+        from fastapi import HTTPException
+        raise HTTPException(status_code=403, detail="Неверный ключ")
+
+    user = db.query(User).filter(User.username == "990101000001").first()
+    if user:
+        user.password_hash = get_password_hash(admin_password)
+        user.role = UserRole.ADMIN
+        db.commit()
+        return {"status": "updated", "message": f"Пароль администратора обновлён на: {admin_password}"}
+    else:
+        db.add(User(
+            username="990101000001",
+            password_hash=get_password_hash(admin_password),
+            role=UserRole.ADMIN,
+            full_name="Администратор",
+        ))
+        db.commit()
+        return {"status": "created", "message": f"Администратор создан. Пароль: {admin_password}"}
 
 
 # [FIX B-09] Добавлена авторизация — статистика доступна только авторизованным пользователям
