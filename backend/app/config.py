@@ -37,7 +37,8 @@ if settings.secret_key == _INSECURE_DEFAULT_KEY:
     )
 
 # Export variables for compatibility with auth.py
-DATABASE_URL = settings.database_url
+# Fix for SQLAlchemy 2.0: it requires postgresql:// instead of postgres://
+DATABASE_URL = settings.database_url.replace("postgres://", "postgresql://")
 SECRET_KEY = settings.secret_key
 ALGORITHM = settings.algorithm
 ACCESS_TOKEN_EXPIRE_MINUTES = settings.access_token_expire_minutes
