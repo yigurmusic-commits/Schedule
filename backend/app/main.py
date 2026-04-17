@@ -10,7 +10,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 
-from app.database import Base, get_db
+from app.database import Base, get_db, engine
 from app.models.models import *  # noqa: F401, F403 — регистрация моделей
 from app.config import CORS_ORIGINS
 from app.dependencies import require_authenticated
@@ -39,7 +39,7 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 # Создание таблиц (dev-режим; в production используем Alembic / SQL-патч)
-# Base.metadata.create_all(bind=engine)
+Base.metadata.create_all(bind=engine)
 
 app = FastAPI(
     title="scheduleSYS API",
