@@ -33,7 +33,7 @@ services:
         fromService:
           name: schedulesys-backend
           type: web
-          property: url
+          property: host
       - key: PORT
         value: 80
 
